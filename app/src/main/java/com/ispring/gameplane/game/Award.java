@@ -29,7 +29,7 @@ public class Award extends AutoSprite {
                 float maxY = getY() + getHeight();
                 if(status == STATUS_DOWN1){
                     //第一次向下
-                    if(maxY >= canvasHeight * 0.25){
+                    if(maxY >= canvasHeight * 0.3){
                         //当第一次下降到临界值时改变方向，向上
                         setSpeed(-5);
                         status = STATUS_UP2;
@@ -39,7 +39,7 @@ public class Award extends AutoSprite {
                     //第二次向上
                     if(maxY+this.getSpeed() <= 0){
                         //第二次上升到临界值时改变方向，向下
-                        setSpeed(13);
+                        setSpeed(7);
                         status = STATUS_DOWN3;
                     }
                 }

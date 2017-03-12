@@ -5,6 +5,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.RectF;
+import android.util.Log;
+import android.widget.Button;
 
 import java.util.List;
 
@@ -16,10 +18,11 @@ public class CombatAircraft extends Sprite {
     private int bombAwardCount = 0;//可使用的炸弹数
 
     //双发子弹相关
-    private boolean single = true;//标识是否发的是单一的子弹
-    private int doubleTime = 0;//当前已经用双子弹绘制的次数
-    private int maxDoubleTime = 140;//使用双子弹最多绘制的次数
-
+//    private boolean single = true;//标识是否发的是单一的子弹
+//    private int doubleTime = 0;//当前已经用双子弹绘制的次数
+//    private int maxDoubleTime = 140;//使用双子弹最多绘制的次数
+    //子弹相关
+    private int bulletNum = 1;//初始子弹数为1
     //被撞击后闪烁相关
     private long beginFlushFrame = 0;//要在第beginFlushFrame帧开始闪烁战斗机
     private int flushTime = 0;//已经闪烁的次数
@@ -37,7 +40,7 @@ public class CombatAircraft extends Sprite {
             validatePosition(canvas);
 
             //每隔7帧发射子弹
-            if(getFrame() % 7 == 0){
+            if(getFrame() % 3 == 0){
                 fight(gameView);
             }
         }
@@ -71,33 +74,154 @@ public class CombatAircraft extends Sprite {
 
         float x = getX() + getWidth() / 2;
         float y = getY() - 5;
-        if(single){
-            //单发模式下发射单发黄色子弹
-            Bitmap yellowBulletBitmap = gameView.getYellowBulletBitmap();
-            Bullet yellowBullet = new Bullet(yellowBulletBitmap);
-            yellowBullet.moveTo(x, y);
-            gameView.addSprite(yellowBullet);
-        }
-        else{
-            //双发模式下发射两发蓝色子弹
-            float offset = getWidth() / 4;
-            float leftX = x - offset;
-            float rightX = x + offset;
-            Bitmap blueBulletBitmap = gameView.getBlueBulletBitmap();
-
-            Bullet leftBlueBullet = new Bullet(blueBulletBitmap);
-            leftBlueBullet.moveTo(leftX, y);
-            gameView.addSprite(leftBlueBullet);
-
-            Bullet rightBlueBullet = new Bullet(blueBulletBitmap);
-            rightBlueBullet.moveTo(rightX, y);
-            gameView.addSprite(rightBlueBullet);
-
-            doubleTime++;
-            if(doubleTime >= maxDoubleTime){
-                single = true;
-                doubleTime = 0;
+        switch(bulletNum){
+            case 1:{
+                Bitmap yellowBulletBitmap = gameView.getYellowBulletBitmap();
+                Bullet yellowBullet = new Bullet(yellowBulletBitmap);
+                yellowBullet.moveTo(x, y);
+                gameView.addSprite(yellowBullet);
+                break;
             }
+            //获得两次子弹奖励时，子弹变为蓝色，均匀分布在飞机前侧
+            case 2:{
+                float offset = getWidth() / 4;
+                float leftX = x - offset;
+                float rightX = x + offset;
+                Bitmap blueBulletBitmap = gameView.getBlueBulletBitmap();
+
+                Bullet leftBlueBullet = new Bullet(blueBulletBitmap);
+                leftBlueBullet.moveTo(leftX, y);
+                leftBlueBullet.setSpeed(-12);
+                gameView.addSprite(leftBlueBullet);
+
+                Bullet rightBlueBullet = new Bullet(blueBulletBitmap);
+                rightBlueBullet.moveTo(rightX, y);
+                rightBlueBullet.setSpeed(-12);
+                gameView.addSprite(rightBlueBullet);
+                break;
+            }
+            //当获得三次子弹奖励时，在两次子弹奖励的基础上，中间再加一颗黄色子弹
+            case 3: {
+                float offset = getWidth() / 4;
+                float leftX = x - offset;
+                float rightX = x + offset;
+                Bitmap blueBulletBitmap = gameView.getBlueBulletBitmap();
+                Bitmap yellowBulletBitmap = gameView.getYellowBulletBitmap();
+
+                Bullet leftBlueBullet = new Bullet(blueBulletBitmap);
+                leftBlueBullet.moveTo(leftX, y);
+                leftBlueBullet.setSpeed(-16);
+                gameView.addSprite(leftBlueBullet);
+
+                Bullet middleYellowBullet = new Bullet(yellowBulletBitmap);
+                middleYellowBullet.moveTo(x, y - 3 );
+                middleYellowBullet.setSpeed(-16);
+                gameView.addSprite(middleYellowBullet);
+
+                Bullet rightBlueBullet = new Bullet(blueBulletBitmap);
+                rightBlueBullet.moveTo(rightX, y);
+                rightBlueBullet.setSpeed(-16);
+                gameView.addSprite(rightBlueBullet);
+                break;
+            }
+            //当获得4次子弹奖励时，飞机射出4颗子弹，中间两颗是黄色，旁边是蓝色
+            case 4:{
+                float offset = getWidth() / 8;
+                float leftX1 = x - 3 * offset;
+                float rightX1 = x + 3 * offset;
+                float leftX2 = x - offset;
+                float rightX2 = x + offset;
+                Bitmap blueBulletBitmap = gameView.getBlueBulletBitmap();
+                Bitmap yellowBulletBitmap = gameView.getYellowBulletBitmap();
+
+                Bullet leftBlueBullet = new Bullet(blueBulletBitmap);
+                leftBlueBullet.moveTo(leftX1, y);
+                leftBlueBullet.setSpeed(-20);
+                gameView.addSprite(leftBlueBullet);
+
+                Bullet leftYellowBullet = new Bullet(yellowBulletBitmap);
+                leftYellowBullet.moveTo(leftX2, y - 4);
+                leftYellowBullet.setSpeed(-20);
+                gameView.addSprite(leftYellowBullet);
+
+                Bullet rightYellowBullet = new Bullet(yellowBulletBitmap);
+                rightYellowBullet.moveTo(rightX2, y - 4);
+                rightYellowBullet.setSpeed(-20);
+                gameView.addSprite(rightYellowBullet);
+
+                Bullet rightBlueBullet = new Bullet(blueBulletBitmap);
+                rightBlueBullet.moveTo(rightX1, y);
+                rightBlueBullet.setSpeed(-20);
+                gameView.addSprite(rightBlueBullet);
+                break;
+            }
+            //当获得5次子弹奖励时，飞机中部逆向射出子弹
+            case 5:{
+                float offset = getWidth() / 8;
+                float leftX1 = x - 3 * offset;
+                float rightX1 = x + 3 * offset;
+                float leftX2 = x - offset;
+                float rightX2 = x + offset;
+                Bitmap blueBulletBitmap = gameView.getBlueBulletBitmap();
+                Bitmap yellowBulletBitmap = gameView.getYellowBulletBitmap();
+
+                Bullet leftBlueBullet = new Bullet(blueBulletBitmap);
+                leftBlueBullet.moveTo(leftX1, y);
+                leftBlueBullet.setSpeed(-20);
+                gameView.addSprite(leftBlueBullet);
+
+                Bullet leftYellowBullet = new Bullet(yellowBulletBitmap);
+                leftYellowBullet.moveTo(leftX2, y - 4);
+                leftYellowBullet.setSpeed(-20);
+                gameView.addSprite(leftYellowBullet);
+
+                Bullet middleBullet = new Bullet(blueBulletBitmap);
+                middleBullet.moveTo(x, y + 10);
+                middleBullet.setSpeed(15);
+                gameView.addSprite(middleBullet);
+
+                Bullet rightYellowBullet = new Bullet(yellowBulletBitmap);
+                rightYellowBullet.moveTo(rightX2, y - 4);
+                rightYellowBullet.setSpeed(-20);
+                gameView.addSprite(rightYellowBullet);
+
+                Bullet rightBlueBullet = new Bullet(blueBulletBitmap);
+                rightBlueBullet.moveTo(rightX1, y);
+                rightBlueBullet.setSpeed(-20);
+                gameView.addSprite(rightBlueBullet);
+                break;
+            }
+            default:{
+//                float offset = getWidth() / 8;
+//                float leftX1 = x - 3 * offset;
+//                float rightX1 = x + 3 * offset;
+//                float leftX2 = x - offset;
+//                float rightX2 = x + offset;
+//                Bitmap blueBulletBitmap = gameView.getBlueBulletBitmap();
+//                Bitmap yellowBulletBitmap = gameView.getYellowBulletBitmap();
+//
+//                Bullet leftBlueBullet = new Bullet(blueBulletBitmap);
+//                leftBlueBullet.moveTo(leftX1, y);
+//                leftBlueBullet.setSpeed(-20);
+//                gameView.addSprite(leftBlueBullet);
+//
+//                Bullet leftYellowBullet = new Bullet(yellowBulletBitmap);
+//                leftYellowBullet.moveTo(leftX2, y - 4);
+//                leftYellowBullet.setSpeed(-20);
+//                gameView.addSprite(leftYellowBullet);
+//
+//                Bullet rightYellowBullet = new Bullet(yellowBulletBitmap);
+//                rightYellowBullet.moveTo(rightX2, y - 4);
+//                rightYellowBullet.setSpeed(-20);
+//                gameView.addSprite(rightYellowBullet);
+//
+//                Bullet rightBlueBullet = new Bullet(blueBulletBitmap);
+//                rightBlueBullet.moveTo(rightX1, y);
+//                rightBlueBullet.setSpeed(-20);
+//                gameView.addSprite(rightBlueBullet);
+                break;
+            }
+
         }
     }
 
@@ -117,8 +241,18 @@ public class CombatAircraft extends Sprite {
                 Point p = getCollidePointWithOther(enemyPlane);
                 if(p != null){
                     //p为战斗机与敌机的碰撞点，如果p不为null，则表明战斗机被敌机击中
-                    explode(gameView);
-                    break;
+                    if (bulletNum == 1) {
+                        //当飞机的子弹数为1 时，一旦发生撞击，飞机即损毁
+                        explode(gameView);
+                        break;
+                    }
+                    else {
+                        //当飞机的子弹数大于1时，发生撞击后，敌机损毁
+                        enemyPlane.explode(gameView);
+                        bulletNum --;
+                        Log.d("bulletNum", Integer.toString(bulletNum));
+                        break;
+                    }
                 }
             }
         }
@@ -161,8 +295,11 @@ public class CombatAircraft extends Sprite {
                 Point p = getCollidePointWithOther(bulletAward);
                 if(p != null){
                     bulletAward.destroy();
-                    single = false;
-                    doubleTime = 0;
+                    //当飞机的子弹数小小于7时，一旦收到子弹奖励，子弹数会增加
+
+                    if (bulletNum < 5){
+                        bulletNum ++;
+                    }
                 }
             }
         }
@@ -186,7 +323,9 @@ public class CombatAircraft extends Sprite {
     public int getBombCount(){
         return bombAwardCount;
     }
-
+    public int getBulletCount(){
+        return bulletNum;
+    }
     //战斗机使用炸弹
     public void bomb(GameView gameView){
         if(collide || isDestroyed()){

@@ -2,6 +2,7 @@ package com.ispring.gameplane;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.ispring.gameplane.game.GameView;
 
@@ -59,5 +60,17 @@ public class GameActivity extends Activity {
             gameView.destroy();
         }
         gameView = null;
+    }
+
+    @Override
+    public void onBackPressed(){
+        if(gameView.getStatus() == 1){
+            //按下手机的返回键时，游戏不会退出，只是暂停
+            gameView.pause();
+        }
+        else{
+            //暂停状态下再次按返回键，游戏退出
+            super.onBackPressed();
+        }
     }
 }

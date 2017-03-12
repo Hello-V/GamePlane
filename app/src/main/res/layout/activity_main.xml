@@ -2,18 +2,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:orientation="vertical"
-    tools:context="com.ispring.gameplane.MainActivity">
+    android:visibility="visible"
+    android:weightSum="1"
+    tools:context="com.ispring.gameplane.MainActivity"
+    android:baselineAligned="false">
 
-    <Button android:id="@+id/btnGame"
+    <Button
+        android:id="@+id/btnGame"
+        style="@android:style/Widget.DeviceDefault.Button.Borderless"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:elevation="0dp"
+        android:onClick="onClick"
         android:text="开始游戏"
         android:textAllCaps="false"
-        android:onClick="onClick" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textStyle="bold" />
 
 </LinearLayout>

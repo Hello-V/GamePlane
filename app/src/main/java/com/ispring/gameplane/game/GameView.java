@@ -113,6 +113,7 @@ public class GameView extends View {
         //将游戏设置为开始状态
         status = STATUS_GAME_STARTED;
         postInvalidate();
+        //postInvalidate()就是一直在调用onDraw()来刷新画面
     }
     
     private void restart(){
@@ -340,15 +341,24 @@ public class GameView extends View {
         //绘制左下角
         if(combatAircraft != null && !combatAircraft.isDestroyed()){
             int bombCount = combatAircraft.getBombCount();
+            int bulletCount = combatAircraft.getBulletCount();
+            Bitmap bombBitmap = bitmaps.get(11);
+            float bombTop = canvas.getHeight() - bombBitmap.getHeight();
             if(bombCount > 0){
                 //绘制左下角的炸弹
-                Bitmap bombBitmap = bitmaps.get(11);
-                float bombTop = canvas.getHeight() - bombBitmap.getHeight();
+
                 canvas.drawBitmap(bombBitmap, 0, bombTop, paint);
                 //绘制左下角的炸弹数量
                 float bombCountLeft = bombBitmap.getWidth() + 10 * density;
                 float bombCountTop = fontSize + bombTop + bombBitmap.getHeight() / 2 - fontSize / 2;
                 canvas.drawText("X " + bombCount, bombCountLeft, bombCountTop, textPaint);
+            }
+            if(bulletCount > 0){
+                //绘制右下角的子弹数量
+                float bulletLeft = canvas.getWidth() - fontSize * 6;
+                float bulletTop = fontSize + bombTop + bombBitmap.getHeight() / 2 - fontSize / 2;
+                canvas.drawText("Bulltes: " + bulletCount, bulletLeft, bulletTop, textPaint);
+
             }
         }
     }
@@ -360,8 +370,9 @@ public class GameView extends View {
             List<Bullet> aliveBullets = getAliveBullets();
             for(Bullet bullet : aliveBullets){
                 //如果战斗机跑到了子弹前面，那么就销毁子弹
+                //这种情况好像不会发生，因为子弹跑的比飞机快
                 if(aircraftY <= bullet.getY()){
-                    bullet.destroy();
+                    //bullet.destroy();
                 }
             }
         }
@@ -448,12 +459,11 @@ public class GameView extends View {
                     combatAircraft.centerTo(touchX, touchY);
                 }
             }else if(touchType == TOUCH_DOUBLE_CLICK){
-                if(status == STATUS_GAME_STARTED){
-                    if(combatAircraft != null){
-                        //双击会使得战斗机使用炸弹
-                        combatAircraft.bomb(this);
-                    }
+                if(combatAircraft != null){
+                    //双击会使得战斗机使用炸弹
+                    combatAircraft.bomb(this);
                 }
+
             }
         }else if(status == STATUS_GAME_PAUSED){
             if(lastSingleClickTime > 0){
